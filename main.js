@@ -54,28 +54,29 @@ class Generator {
             case 'firstName': return await this.generateFirstName(options);
             case 'surname': return await this.generateSurname(options);
             case 'street': return await this.generateStreetName(options);
+            case 'houseNumber': return this.generateHouseNumber(options);
         };
     }
 
-    generateData = async (datasets, options) => {
+    combineData = async (datasets, options) => {
         const {amount} = options;
-        const rawObj = {};
+        const fieldsObject = {};
         const output = [];
-
+            
         const randomArrays = await Promise.all( datasets.map(async (field) => 
             await this.generate(field, options)
         ) );
 
         //turn the arrays for each field into objects where the key is field name 
         randomArrays.map((field, idx) => {
-            rawObj[datasets[idx]] = field;
+            fieldsObject[datasets[idx]] = field;
         });
 
         for(let i = 0; i < amount; i++){
             let obj = {};
             
-            for(let field in rawObj){
-                obj[field] = rawObj[field][i];
+            for(let field in fieldsObject){
+                obj[field] = fieldsObject[field][i];
             }
 
             output.push(obj);
@@ -92,7 +93,7 @@ class Generator {
     const rand = Math.random();
     let sex = rand > 0.5 ? 'female' : 'male';
 
-    let output = await g.generateData(["firstName", "surname", "street"], {amount: 7, sex});
+    let output = await g.combineData(["firstName", "surname", "street", "houseNumber"], {amount: 7, sex});
     console.log(output)
 
     await g.close();
