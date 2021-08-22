@@ -23,19 +23,9 @@ class Generator {
     generateFirstName = async(options) => {
         const {sex, amount} = options;
 
-        const res = await this.client.query({text: `SELECT * FROM first_names ORDER BY random() LIMIT $1`, values: [amount]});
+        const res = await this.client.query({text: `SELECT * FROM first_names WHERE sex = $1 ORDER BY random() LIMIT $2`, values: [sex, amount]});
         return res.rows.map(r => r.name); 
     }
-
-    // generateFirstNameOld = async(options) => {
-    //     const {sex, amount} = options;
-
-    //     const columns = ["first_names.name", "street_names_full.street_name"].join(", ");
-    //     const tables = ["first_names", "street_names_full"].join(", ");
-
-    //     const res = await this.client.query({text: `SELECT first_names.name, street_names_full.street_name FROM first_names, street_names_full ORDER BY random() LIMIT $1`, values: [amount]});
-    //     return res.rows; 
-    // }
 
     generateSurname = async(options) => {
         const {amount} = options;
@@ -69,18 +59,17 @@ class Generator {
 
     generateData = async (datasets, options) => {
         const {amount} = options;
-        
-        let raws = await Promise.all( datasets.map(async (field) => 
+        const rawObj = {};
+        const output = [];
+
+        const randomArrays = await Promise.all( datasets.map(async (field) => 
             await this.generate(field, options)
         ) );
 
-        let rawObj = {};
-
-        raws.map((el, idx) => {
-            rawObj[datasets[idx]] = el;
-        })
-
-        const vals = [];
+        //turn the arrays for each field into objects where the key is field name 
+        randomArrays.map((field, idx) => {
+            rawObj[datasets[idx]] = field;
+        });
 
         for(let i = 0; i < amount; i++){
             let obj = {};
@@ -89,10 +78,10 @@ class Generator {
                 obj[field] = rawObj[field][i];
             }
 
-            vals.push(obj);
+            output.push(obj);
         }
 
-        return vals;
+        return output;
     }
 };
 
@@ -108,12 +97,3 @@ class Generator {
 
     await g.close();
 })();
-
-//SELECT table1_new.fn, table2_new.sn
-// FROM
-// (SELECT first_names.name AS fn, ROW_NUMBER() OVER (ORDER BY (RANDOM())) AS rn FROM first_names) AS table1_new 
-
-// INNER JOIN 
-
-// (SELECT surnames.name AS sn, ROW_NUMBER() OVER (ORDER BY (RANDOM())) AS rn FROM surnames) AS table2_new
-// ON table1_new.rn = table2_new.rn LIMIT 8;
