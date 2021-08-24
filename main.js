@@ -1,11 +1,8 @@
-const { Client, Pool } = require('pg')
+const { Pool } = require('pg')
 
 class RandomData {
     pool = null;
     constructor () {
-    }
-
-    initialise = () => {
         this.pool = new Pool({
             user: 'george',
             host: 'localhost',
@@ -80,5 +77,4 @@ class RandomData {
 };
 
 const dataGenerator = new RandomData();
-dataGenerator.initialise();
 module.exports = {dataGenerator};
