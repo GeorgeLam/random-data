@@ -42,12 +42,26 @@ class RandomData {
         return numbers;
     }
 
+    generateCity = async(options) => {
+        const {amount} = options;
+        const res = await this.pool.query({text: `SELECT * FROM cities ORDER BY random() LIMIT $1`, values: [amount]});
+        return res.rows.map(r => r.city); 
+    }
+
+    generateCountry = async(options) => {
+        const {amount} = options;
+        const res = await this.pool.query({text: `SELECT * FROM countries ORDER BY random() LIMIT $1`, values: [amount]});
+        return res.rows.map(r => r.country); 
+    }
+
     generate = async(type, options) => {
         switch(type){
             case 'firstName': return await this.generateFirstName(options);
             case 'surname': return await this.generateSurname(options);
             case 'street': return await this.generateStreetName(options);
             case 'houseNumber': return this.generateHouseNumber(options);
+            case 'city': return await this.generateCity(options);
+            case 'country': return await this.generateCountry(options);
         };
     }
 

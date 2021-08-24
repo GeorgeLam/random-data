@@ -6,13 +6,13 @@ const requests = async(n) => {
 
     let requestArray = [];
     for(let i = 0; i < n; i++){
-        requestArray.push(axios.get(url))
+        requestArray.push(axios.post(url, {"requestedFields": ["firstName", "surname", "city"]}))
     }
-    const res = await Promise.all(requestArray);
+    await Promise.all(requestArray);
 
     const endTime = Date.now();
 
     console.log(`Sent ${n} requests, which took a total of ${endTime-startTime}ms`);
 }
 
-requests(500);
+requests(50);
